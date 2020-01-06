@@ -63,8 +63,8 @@ def updateTheta(theta, nodes_slack,nodes_PV,nodes_PQ,Xk,xP,xdelta):
     return theta
 
 
-PQesp = np.array([200,250,0])
-PQcalc = np.array([0,0,0])
+PQesp = np.array([200,250,0])/100
+PQcalc = np.array([0,0,0])/100
 
 
 J = np.ndarray((3,3))
@@ -75,19 +75,22 @@ epsilon = 0.01
 maxdif = 10000
 
 
-while((it<MAXITER or maxdif<epsilon)):
-    J = pf.updateJacobian(J, xP, xdelta, v,theta)
-    dx = J.dot(Xk)
+while((it<MAXITER and maxdif>epsilon)):
+    print('Iteracion',it)
+    J = pf.updateJacobian(J, xP, xdelta, v,theta,B,G)
+    dPQ = J.dot(Xk)
     # print('Iteración',it)
     # print('Pesp - Pcalc = ',dx)
     print('Pcalc = ',PQcalc)
-    maxdif = max(abs(dx))
-    PQcalc = PQesp - dx
-    Xk1 = Xk - np.linalg.inv(J).dot(PQcalc)
+    print('dPQ',dPQ)
+    maxdif = max(abs(dPQ))
+    PQcalc = PQesp - dPQ
+    Xk1 = Xk - np.linalg.inv(J).dot(dPQ)
     Xk = Xk1
     v = updateV(v,nodes_slack,nodes_PV,nodes_PQ,Xk,xP,xdelta)
     theta = updateTheta(theta,nodes_slack,nodes_PV,nodes_PQ,Xk,xP,xdelta)
     it=it+1
     
     
-    
+print('Voltages',v)
+print('theta',theta)

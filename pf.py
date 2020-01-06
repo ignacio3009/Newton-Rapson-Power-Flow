@@ -20,8 +20,8 @@ LARGE = LINDATA[:,6]
 x= [delta, \v\]
 
 """
-B = [[0,0,0],[0,0,0],[0,0,0]]
-G = [[0.5,0.5,0.5],[0.5,0.5,0.5],[0.5,0.5,0.5]]
+# B = [[0,0,0],[0,0,0],[0,0,0]]
+# G = [[0.5,0.5,0.5],[0.5,0.5,0.5],[0.5,0.5,0.5]]
 numNodes = 3
 
 def init_variables():
@@ -60,6 +60,8 @@ z_base = vb**2/sb
 
 
 def createBG():
+    B = [[0,0,0],[0,0,0],[0,0,0]]
+    G = [[0.5,0.5,0.5],[0.5,0.5,0.5],[0.5,0.5,0.5]]
     for i in range(len(LINDATA)):
         ni = int(BO[i])
         nj = int(BD[i])
@@ -85,7 +87,7 @@ def createBG():
         
         
 
-def dP_ddelta(i,j,V,theta):
+def dP_ddelta(i,j,V,theta,B,G):
     if i==j:
         s=0
         for k in range(numNodes):
@@ -108,7 +110,7 @@ def dP_ddelta(i,j,V,theta):
         return Vij*(Gij*sin_deltatheta - Bij*cos_deltatheta)
     
 
-def dQ_ddelta(i,j,V,theta):
+def dQ_ddelta(i,j,V,theta,B,G):
     if i==j:
         s=0
         for k in range(numNodes):
@@ -131,7 +133,7 @@ def dQ_ddelta(i,j,V,theta):
         return -1*Vij*(Gij*cos_deltatheta - Bij*sin_deltatheta)
     
  
-def dP_dV(i,j,V,theta):
+def dP_dV(i,j,V,theta,B,G):
     s=0
     if i==j:
         for k in range(numNodes):
@@ -159,7 +161,7 @@ def dP_dV(i,j,V,theta):
     
             
 
-def dQ_dV(i,j,V,theta):
+def dQ_dV(i,j,V,theta,B,G):
     if i==j:
         s=0
         for k in range(numNodes):
@@ -184,7 +186,7 @@ def dQ_dV(i,j,V,theta):
         return Vij*(Gij*sin_deltatheta - Bij*cos_deltatheta)
     
     
-def updateJacobian(J,xP,xdelta, v, theta):
+def updateJacobian(J,xP,xdelta, v, theta,B,G):
     nxp = len(xP)
     nxd = len(xdelta)
     numP = range(nxp)
@@ -193,14 +195,14 @@ def updateJacobian(J,xP,xdelta, v, theta):
     
     for i in numP:
         for j in numP:
-            J[i][j] = dP_ddelta(i,j,v,theta)
+            J[i][j] = dP_ddelta(i,j,v,theta,B,G)
         for j in numPQ:
-            J[i][j] = dP_dV(i,j,v,theta)
+            J[i][j] = dP_dV(i,j,v,theta,B,G)
     for i in numPQ:
         for j in numP:
-            J[i][j] = dQ_ddelta(i,j,v,theta)
+            J[i][j] = dQ_ddelta(i,j,v,theta,B,G)
         for j in numPQ:
-            J[i][j] = dQ_dV(i,j,v,theta)
+            J[i][j] = dQ_dV(i,j,v,theta,B,G)
     return J
 
 
